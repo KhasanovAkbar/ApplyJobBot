@@ -3,6 +3,8 @@ package univ.tuit.applyjobbot.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -37,13 +39,14 @@ public class Jobs {
 
     private boolean isTerritory = false;
 
-    private String requirements = "Register";
+    private String state = "Register";
 
     private boolean isRequirements = false;
 
     private String registrationTime;
 
-    private String state;
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Requirement> requirements = new HashSet<>();
 
     public boolean isCompanyName() {
         return isCompanyName;

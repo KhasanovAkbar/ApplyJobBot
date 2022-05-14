@@ -47,17 +47,13 @@ public class BotUserCache implements Cache<Jobs> {
     }
 
     @Override
-    public Jobs findBy(Long id) {
-        return null;
-    }
-
-    @Override
-    public Jobs findByCompanyNameAndTechnologyAndTerritory(String comp, String tech, String ter) {
-        return jobRepository.findByCompanyNameAndTechnologyAndTerritory(comp, tech, ter);
-    }
-
-    @Override
     public List<Jobs> getAll() {
         return jobRepository.getAll();
+    }
+
+    @Override
+    public List<Jobs> findByJobId(String s) {
+        //this function works for requirements
+        return null;
     }
 }

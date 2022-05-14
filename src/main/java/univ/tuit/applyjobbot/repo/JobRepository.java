@@ -15,4 +15,6 @@ public interface JobRepository extends JpaRepository<Jobs, Integer>{
 
     Jobs findByCompanyNameAndTechnologyAndTerritory(String companyName, String technology, String territory);
 
+    Jobs findByJobId(String jobId);
+
 }

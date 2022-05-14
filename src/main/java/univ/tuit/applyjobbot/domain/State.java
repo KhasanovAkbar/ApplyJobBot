@@ -4,5 +4,6 @@ public enum State {
     COMPLETED,
     CHECKED,
     DENIED,
+    REQUIREMENT,
     NONE
 }

@@ -12,10 +12,8 @@ public interface Cache<T> {
 
     T findBy(Long id, Integer sequence);
 
-    T findBy(Long id);
-
-    T findByCompanyNameAndTechnologyAndTerritory(String comp, String tech, String ter);
-
     List<T> getAll();
+
+    List<T> findByJobId(String s);
 
 }
