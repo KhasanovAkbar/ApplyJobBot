@@ -153,7 +153,7 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
             List<Requirement> byJobId = requirementCache.findByJobId(byUserId.getJobId());
             StringBuilder sb = new StringBuilder();
             for (Requirement requirement : byJobId) {
-                sb.append(requirement.getName()).append(", ");
+                sb.append("\n-").append(requirement.getName()).append(":");
             }
 
             messageSender.sendMessage(SendMessage.builder().text(
@@ -230,8 +230,10 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
             keyboardRow.clear();
             for (Jobs job : byUserId) {
                 KeyboardRow row = new KeyboardRow();
-                row.add(job.getCompanyName() + " " + job.getTechnology());
-                keyboardRow.add(row);
+                if (job.getState().equals(State.COMPLETED.toString())) {
+                    row.add("Id: " + job.getJobId() + " Idora: " + job.getCompanyName() + " Texnologiya: " + job.getTechnology());
+                    keyboardRow.add(row);
+                }
             }
             markup.setKeyboard(keyboardRow);
             markup.setResizeKeyboard(true);
@@ -245,9 +247,13 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
 
     private String generateJobId(String companyName) {
         String result;
-        String c1 = companyName.trim().substring(0, 1).toUpperCase();
+
         Date date = new Date();
-        result = c1 + date.getDate() + date.getHours() + date.getMinutes() + date.getSeconds();
+        String c1 = companyName;
+        if (companyName.trim().length() > 3) {
+            c1 = companyName.trim().substring(0,1) + companyName.trim().substring(companyName.length() / 2, companyName.length()/2+1) + companyName.trim().substring(companyName.length() - 1, companyName.length()).toUpperCase();
+        }
+        result = c1.toUpperCase() + date.getHours() + date.getSeconds();
         return result;
     }
 
