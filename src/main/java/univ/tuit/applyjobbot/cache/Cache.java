@@ -16,4 +16,6 @@ public interface Cache<T> {
 
     List<T> findByJobId(String s);
 
+    List<T> findByUserId(Long id);
+
 }

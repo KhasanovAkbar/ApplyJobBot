@@ -13,8 +13,6 @@ public interface JobRepository extends JpaRepository<Jobs, Integer>{
     @Query(value = "select j from Jobs j order by j.id desc")
     List<Jobs> getAll();
 
-    Jobs findByCompanyNameAndTechnologyAndTerritory(String companyName, String technology, String territory);
-
-    Jobs findByJobId(String jobId);
+    List<Jobs> findByUserId(Long userId);
 
 }

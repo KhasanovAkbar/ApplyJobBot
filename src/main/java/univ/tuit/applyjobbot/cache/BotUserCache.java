@@ -56,4 +56,9 @@ public class BotUserCache implements Cache<Jobs> {
         //this function works for requirements
         return null;
     }
+
+    @Override
+    public List<Jobs> findByUserId(Long id) {
+        return jobRepository.findByUserId(id);
+    }
 }

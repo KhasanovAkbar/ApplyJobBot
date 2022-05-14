@@ -158,11 +158,11 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
 
             messageSender.sendMessage(SendMessage.builder().text(
                             "\uD83C\uDF93 Id: " + byUserId.getJobId() + "\n" +
-                            "\uD83C\uDFE2 Idora: " + byUserId.getCompanyName() + "\n" +
-                            "\uD83D\uDCDA Texnologiya: " + byUserId.getTechnology() + "\n" +
-                            "\uD83C\uDDFA\uD83C\uDDFF Telegram: @" + byUserId.getUsername() + "\n" +
-                            "\uD83C\uDF10 Hudud: " + byUserId.getTerritory() + "\n" +
-                            "‼️ Qo`shimcha: " + sb)
+                                    "\uD83C\uDFE2 Idora: " + byUserId.getCompanyName() + "\n" +
+                                    "\uD83D\uDCDA Texnologiya: " + byUserId.getTechnology() + "\n" +
+                                    "\uD83C\uDDFA\uD83C\uDDFF Telegram: @" + byUserId.getUsername() + "\n" +
+                                    "\uD83C\uDF10 Hudud: " + byUserId.getTerritory() + "\n" +
+                                    "‼️ Qo`shimcha: " + sb)
                     .parseMode("HTML")
                     .chatId(String.valueOf(message.getChatId()))
                     .build());
@@ -217,6 +217,30 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
             messageSender.sendMessage(sm);
         }
         cache.update(byUserId);
+    }
+
+    @Override
+    public void jobList(Message message) {
+        List<Jobs> byUserId = cache.findByUserId(message.getFrom().getId());
+        SendMessage sm = new SendMessage();
+        if (byUserId.size() == 0) {
+            sm.setChatId(String.valueOf(message.getChatId()));
+            sm.setText("Hozirga sizda ro'yxatdan o'tgan ishlar mavjud emas");
+        } else {
+            keyboardRow.clear();
+            for (Jobs job : byUserId) {
+                KeyboardRow row = new KeyboardRow();
+                row.add(job.getCompanyName() + " " + job.getTechnology());
+                keyboardRow.add(row);
+            }
+            markup.setKeyboard(keyboardRow);
+            markup.setResizeKeyboard(true);
+            markup.setOneTimeKeyboard(true);
+            sm.setChatId(String.valueOf(message.getChatId()));
+            sm.setText("Ro'yxatdan o'tgan ishlar");
+            sm.setReplyMarkup(markup);
+        }
+        messageSender.sendMessage(sm);
     }
 
     private String generateJobId(String companyName) {

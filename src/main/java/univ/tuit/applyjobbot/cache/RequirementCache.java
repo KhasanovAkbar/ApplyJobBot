@@ -45,4 +45,10 @@ public class RequirementCache implements Cache<Requirement> {
     public List<Requirement> findByJobId(String s) {
         return requirementRepository.findByJobId(s);
     }
+
+    @Override
+    public List<Requirement> findByUserId(Long id) {
+        //this function works for BotUser
+        return null;
+    }
 }

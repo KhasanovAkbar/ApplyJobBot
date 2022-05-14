@@ -52,6 +52,9 @@ public class MessageHandler implements Handler<Message> {
                 case "Register":
                     sendMessageService.register(message);
                     break;
+                case "List":
+                    sendMessageService.jobList(message);
+                    break;
                 default:
                     List<Jobs> all = cache.getAll();
                     Jobs lastJob = new Jobs();
