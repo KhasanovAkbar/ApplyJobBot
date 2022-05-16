@@ -2,6 +2,7 @@ package univ.tuit.applyjobbot.messageSender;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendLocation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -36,6 +37,15 @@ public class MessageSenderImpl implements MessageSender {
     public void sendLocation(SendLocation sendLocation) {
         try {
             botMain.execute(sendLocation);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendFile(SendDocument sendDocument) {
+        try {
+            botMain.execute(sendDocument);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

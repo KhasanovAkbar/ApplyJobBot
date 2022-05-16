@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import univ.tuit.applyjobbot.cache.Cache;
+import univ.tuit.applyjobbot.domain.Apply;
 import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.domain.Requirement;
 import univ.tuit.applyjobbot.domain.State;
@@ -25,6 +26,7 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
     private final MessageSender messageSender;
     private final Cache<Jobs> cache;
     private final Cache<Requirement> requirementCache;
+    private final Cache<Apply> applyCache;
 
     static Jobs jobs = new Jobs();
     ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
@@ -32,10 +34,11 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
 
     Jobs byUserId = new Jobs();
 
-    public SendMessageServiceImpl(MessageSender messageSender, Cache<Jobs> cache, Cache<Requirement> requirementCache) {
+    public SendMessageServiceImpl(MessageSender messageSender, Cache<Jobs> cache, Cache<Requirement> requirementCache, Cache<Apply> applyCache) {
         this.messageSender = messageSender;
         this.cache = cache;
         this.requirementCache = requirementCache;
+        this.applyCache = applyCache;
     }
 
 
@@ -189,24 +192,14 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
             sm.setChatId(String.valueOf(message.getChatId()));
             byUserId.setState(State.COMPLETED.toString());
             keyboardRow.clear();
-            sm.setReplyMarkup(buttons());
-            messageSender.sendMessage(sm);
-
-        } else if (message.getText().equals("Yes") && byUserId.getState().equals(State.CHECKED.toString())) {
-            SendMessage sm = new SendMessage();
-            sm.setText("Your data sent to admin" +
-                    "\n<b>Thank you for registration</b>");
-            sm.setParseMode("HTML");
-            sm.setChatId(String.valueOf(message.getChatId()));
-            byUserId.setState(State.COMPLETED.toString());
-            keyboardRow.clear();
+            byUserId.setIsCompanyName(false);
             sm.setReplyMarkup(buttons());
             messageSender.sendMessage(sm);
 
         } else if (message.getText().equals("No") && byUserId.getState().equals(State.CHECKED.toString())) {
             SendMessage sm = new SendMessage();
-            sm.setText("Your data denied " +
-                    "\nClick /start. The announcement will start again");
+            sm.setText("Qabul qilinmadi " +
+                    "\n/start so`zini bosing. E'lon berish qaytadan boshlanadi");
             sm.setChatId(String.valueOf(message.getChatId()));
             byUserId.setState(State.DENIED.toString());
             byUserId.setIsCompanyName(false);
@@ -245,15 +238,40 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
         messageSender.sendMessage(sm);
     }
 
-    private String generateJobId(String companyName) {
-        String result;
+    @Override
+    public void applyList(Message message) {
+        String text = message.getText().trim();
+        String[] all = text.split(" ");
+        String s = all[1];
+        List<Apply> byJobId = applyCache.findByJobId(s);
+        if (byJobId.size() == 0)
+            messageSender.sendMessage(SendMessage.builder()
+                    .text("Bu ish bo'yicha hozirda nomzodlar mavjud emas")
+                    .chatId(String.valueOf(message.getChatId()))
+                    .build());
+        else
+            for (Apply apply : byJobId) {
+                messageSender.sendMessage(SendMessage.builder().text(
+                                "\uD83C\uDF93 Id: " + apply.getJobId() + "\n" +
+                                        "\uD83D\uDC68\u200D\uD83D\uDCBC Xodim: " + apply.getName() + "\n" +
+                                        "\uD83D\uDD51 Yosh: " + apply.getAge() + "\n" +
+                                        "\uD83C\uDDFA\uD83C\uDDFF Telegram: @" + apply.getUsername() + "\n" +
+                                        "\uD83D\uDCDE Aloqa: " + apply.getPhoneNumber())
+                        .parseMode("HTML")
+                        .chatId(String.valueOf(message.getChatId()))
+                        .build());
+            }
+    }
 
+    private String generateJobId(String company) {
+        String result;
+        String companyName = company.trim();
         Date date = new Date();
         String c1 = companyName;
-        if (companyName.trim().length() > 3) {
-            c1 = companyName.trim().substring(0,1) + companyName.trim().substring(companyName.length() / 2, companyName.length()/2+1) + companyName.trim().substring(companyName.length() - 1, companyName.length()).toUpperCase();
+        if (companyName.length() > 3) {
+            c1 = companyName.substring(0, 1) + companyName.substring(companyName.length() / 2, companyName.length() / 2 + 1) + companyName.substring(companyName.length() - 1, companyName.length());
         }
-        result = c1.toUpperCase() + date.getHours() + date.getSeconds();
+        result = c1.toUpperCase() + String.format("%02d", date.getHours()) + String.format("%02d", date.getSeconds());
         return result;
     }
 

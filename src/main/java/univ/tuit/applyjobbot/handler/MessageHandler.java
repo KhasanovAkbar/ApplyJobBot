@@ -58,17 +58,19 @@ public class MessageHandler implements Handler<Message> {
                 default:
                     List<Jobs> all = cache.getAll();
                     Jobs lastJob = new Jobs();
-                    for (Jobs job:all){
-                        if (job.getUserId().equals(user_id)){
+                    for (Jobs job : all) {
+                        if (job.getUserId().equals(user_id)) {
                             lastJob = job;
                             break;
                         }
                     }
-                    if (message.getFrom().getId().equals(cache.findBy(user_id, lastJob.getId()).getUserId())){
-                        sendMessageService.registerJob(message, lastJob.getId());
+                    if (message.getFrom().getId().equals(cache.findBy(user_id, lastJob.getId()).getUserId())) {
+                        if (lastJob.isCompanyName())
+                            sendMessageService.registerJob(message, lastJob.getId());
+                        else sendMessageService.applyList(message);
                     }
 
-            //    case "List":
+                    //    case "List":
 
                 /*default:
                     List<BotUser> all = cache.getAll();

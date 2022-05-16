@@ -27,7 +27,7 @@ public class Jobs {
     @Column(name = "jobId")
     private String jobId;
 
-    private String companyName ="Register";
+    private String companyName = "Register";
 
     private boolean isCompanyName = false;
 
@@ -47,6 +47,13 @@ public class Jobs {
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Requirement> requirements = new HashSet<>();
+
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "Job_Apply",
+            joinColumns = @JoinColumn(name = "jobId"),
+            inverseJoinColumns = @JoinColumn(name = "userId"))
+    private Set<Apply> applies = new HashSet<>();
 
     public boolean isCompanyName() {
         return isCompanyName;

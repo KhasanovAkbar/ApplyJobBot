@@ -12,4 +12,6 @@ public interface SendMessageService<T> {
     void registerJob(T t, Integer id);
 
     void jobList(T t);
+
+    void applyList(T t);
 }
