@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import univ.tuit.applyjobbot.domain.Apply;
+import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.repo.ApplyRepository;
 
 import java.util.List;
@@ -21,17 +22,12 @@ public class ApplyCache implements Cache<Apply>{
     }
 
     @Override
-    public void remove(Apply apply) {
-
-    }
-
-    @Override
-    public Apply update(Apply apply) {
-        return null;
+    public void update(Apply apply) {
     }
 
     @Override
     public Apply findBy(Long id, Integer sequence) {
+        //this functions works for Jobs
         return null;
     }
 
@@ -47,6 +43,13 @@ public class ApplyCache implements Cache<Apply>{
 
     @Override
     public List<Apply> findByUserId(Long id) {
+        //this functions works for Jobs
+        return null;
+    }
+
+    @Override
+    public List<Apply> findByJob(Jobs jobs) {
+        //this functions works for Requirements
         return null;
     }
 }

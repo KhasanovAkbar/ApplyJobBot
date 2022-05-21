@@ -20,6 +20,8 @@ public class Requirement {
 
     private String name;
 
-    private String jobId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "jobId")
+    private Jobs job;
 
 }

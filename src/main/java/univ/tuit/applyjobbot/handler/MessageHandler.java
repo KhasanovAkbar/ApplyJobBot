@@ -33,11 +33,17 @@ public class MessageHandler implements Handler<Message> {
         String user_last_name = message.getChat().getLastName();
         long user_id = message.getChat().getId();
         String message_text = message.getText();
-        String answer = message_text;
 
         if (message.hasText()) {
-            log(user_first_name, user_last_name, Long.toString(user_id), message_text, answer);
-
+            log(user_first_name, user_last_name, Long.toString(user_id), message_text, message_text);
+            List<Jobs> all = cache.getAll();
+            Jobs lastJob = new Jobs();
+            for (Jobs job : all) {
+                if (job.getUserId().equals(user_id)) {
+                    lastJob = job;
+                    break;
+                }
+            }
             switch (message.getText()) {
                 case "/start":
                     sendMessageService.start(message);
@@ -48,44 +54,26 @@ public class MessageHandler implements Handler<Message> {
                     sendMessageService.restart(message);
                     //     cache.add(user);
                     break;
-
+                case "/help":
+                    sendMessageService.help(message);
+                    break;
                 case "Register":
                     sendMessageService.register(message);
                     break;
                 case "List":
-                    sendMessageService.jobList(message);
+                    sendMessageService.jobList(message, lastJob.getId());
+                    break;
+                case "\uD83C\uDFE0️ Bosh sahifa":
+                    sendMessageService.mainPage(message, lastJob.getId());
                     break;
                 default:
-                    List<Jobs> all = cache.getAll();
-                    Jobs lastJob = new Jobs();
-                    for (Jobs job : all) {
-                        if (job.getUserId().equals(user_id)) {
-                            lastJob = job;
-                            break;
-                        }
-                    }
                     if (message.getFrom().getId().equals(cache.findBy(user_id, lastJob.getId()).getUserId())) {
-                        if (lastJob.isCompanyName())
+                        String[] text = message.getText().split(" ");
+
+                        if (!text[0].equals("Id:"))
                             sendMessageService.registerJob(message, lastJob.getId());
                         else sendMessageService.applyList(message);
                     }
-
-                    //    case "List":
-
-                /*default:
-                    List<BotUser> all = cache.getAll();
-                    BotUser lastUser = new BotUser();
-                    for (BotUser botUser : all) {
-                        if (botUser.getUserId().equals(user_id)) {
-                            lastUser = botUser;
-                            break;
-                        }
-                    }
-                    if (message.getFrom().getId().equals(cache.findBy(user_id, lastUser.getId()).getUserId()) && lastUser.isPhoneNumber()) {
-                        sendMessageService.registerUser(message, lastUser.getId());
-                    }else {
-                        sendMessageService.others(message);
-                    }*/
             }
         }
 

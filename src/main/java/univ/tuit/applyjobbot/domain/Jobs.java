@@ -3,10 +3,7 @@ package univ.tuit.applyjobbot.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -44,16 +41,6 @@ public class Jobs {
     private boolean isRequirements = false;
 
     private String registrationTime;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<Requirement> requirements = new HashSet<>();
-
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "Job_Apply",
-            joinColumns = @JoinColumn(name = "jobId"),
-            inverseJoinColumns = @JoinColumn(name = "userId"))
-    private Set<Apply> applies = new HashSet<>();
 
     public boolean isCompanyName() {
         return isCompanyName;
