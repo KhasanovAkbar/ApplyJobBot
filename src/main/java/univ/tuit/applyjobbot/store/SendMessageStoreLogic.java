@@ -1,15 +1,16 @@
-package univ.tuit.applyjobbot.services;
+package univ.tuit.applyjobbot.store;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import univ.tuit.applyjobbot.cache.Cache;
 import univ.tuit.applyjobbot.domain.Apply;
 import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.domain.Requirement;
+import univ.tuit.applyjobbot.services.SendMessageService;
 import univ.tuit.applyjobbot.domain.State;
 import univ.tuit.applyjobbot.messageSender.MessageSender;
 
@@ -21,24 +22,27 @@ import java.util.List;
 
 
 @Component
-public class SendMessageServiceImpl implements SendMessageService<Message> {
+public class SendMessageStoreLogic implements SendMessageService<Message> {
 
     private final MessageSender messageSender;
-    private final Cache<Jobs> cache;
-    private final Cache<Requirement> requirementCache;
-    private final Cache<Apply> applyCache;
 
-    static Jobs jobs = new Jobs();
+    @Autowired
+    JobStore<Jobs> jobStore;
+
+    @Autowired
+    RequirementStore requirementStore;
+
+    @Autowired
+    ApplyStore<Apply> applyStore;
+
+    static Jobs job = new Jobs();
 
     ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
     ArrayList<KeyboardRow> keyboardRow = new ArrayList<>();
 
 
-    public SendMessageServiceImpl(MessageSender messageSender, Cache<Jobs> cache, Cache<Requirement> requirementCache, Cache<Apply> applyCache) {
+    public SendMessageStoreLogic(MessageSender messageSender) {
         this.messageSender = messageSender;
-        this.cache = cache;
-        this.requirementCache = requirementCache;
-        this.applyCache = applyCache;
     }
 
 
@@ -64,7 +68,7 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
     @Override
     public void register(Message message) {
         long chat_id = message.getChatId();
-        jobs = new Jobs();
+        job = new Jobs();
         info(message, chat_id);
         SendMessage sm = new SendMessage();
         sm.setText("Xodim topish uchun ariza berish\n" +
@@ -79,9 +83,9 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
                 .text("\uD83C\uDF93 Idora nomi?")
                 .chatId(String.valueOf(message.getChatId()))
                 .build());
-        jobs.setCompanyName(message.getText());
-        jobs.setIsCompanyName(true);
-        cache.update(jobs);
+        job.setCompanyName(message.getText());
+        job.setIsCompanyName(true);
+        jobStore.update(job);
 
     }
 
@@ -89,8 +93,8 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
     public void registerJob(Message message, Integer id) {
 
         long chat_id = message.getChatId();
-        jobs = cache.findBy(chat_id, id);
-        if (jobs.getTechnology().equals("Register") && jobs.isCompanyName()) {
+        job = jobStore.findBy(chat_id, id);
+        if (job.getTechnology().equals("Register") && job.isCompanyName()) {
             messageSender.sendMessage(SendMessage
                     .builder().text("\uD83D\uDCDA Texnologiya:\n" +
                             "\n" +
@@ -100,11 +104,11 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
                             "Java, C++, C#")
                     .chatId(String.valueOf(chat_id))
                     .build());
-            jobs.setCompanyName(message.getText());
-            jobs.setTechnology(message.getText());
-            jobs.setIsTechnology(true);
+            job.setCompanyName(message.getText());
+            job.setTechnology(message.getText());
+            job.setIsTechnology(true);
 
-        } else if (jobs.getTerritory().equals("Register") && jobs.isTechnology()) {
+        } else if (job.getTerritory().equals("Register") && job.isTechnology()) {
             messageSender.sendMessage(SendMessage
                     .builder().text("\uD83C\uDF10 Hudud: \n" +
                             "\n" +
@@ -112,26 +116,26 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
                             "Viloyat nomi, Toshkent shahar yoki Respublikani kiriting.")
                     .chatId(String.valueOf(chat_id))
                     .build());
-            jobs.setTechnology(message.getText());
-            jobs.setTerritory(message.getText());
+            job.setTechnology(message.getText());
+            job.setTerritory(message.getText());
 
             //generate Job id
-            jobs.setJobId(generateJobId(jobs.getCompanyName()));
-            jobs.setIsTerritory(true);
+            job.setJobId(generateJobId(job.getCompanyName()));
+            job.setIsTerritory(true);
 
-        } else if (jobs.isTerritory() && jobs.getState().equals(State.NONE.toString())) {
-            jobs.setTerritory(message.getText());
+        } else if (job.isTerritory() && job.getState().equals(State.NONE.toString())) {
+            job.setTerritory(message.getText());
             addRequirement(chat_id);
-            jobs.setIsTerritory(false);
+            job.setIsTerritory(false);
 
-        } else if (jobs.isRequirements() && jobs.getState().equals(State.REQUIREMENT.toString())) {
+        } else if (job.isRequirements() && job.getState().equals(State.REQUIREMENT.toString())) {
 
             //add requirement
             String requirement = message.getText();
             Requirement r = new Requirement();
             r.setName(requirement);
-            r.setJob(jobs);
-            requirementCache.add(r);
+            r.setJob(job);
+            requirementStore.add(r);
 
             SendMessage sm = new SendMessage();
             KeyboardRow row1 = new KeyboardRow();
@@ -145,29 +149,29 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
             sm.setText("Davom etishni xohlaysizmi?");
             sm.setChatId(String.valueOf(message.getChatId()));
             sm.setReplyMarkup(markup);
-            jobs.setState(State.NONE.toString());
+            job.setState(State.NONE.toString());
             messageSender.sendMessage(sm);
 
-        } else if (message.getText().equals("Ha") && jobs.getState().equals(State.NONE.toString())) {
+        } else if (message.getText().equals("Ha") && job.getState().equals(State.NONE.toString())) {
             addRequirement(chat_id);
 
-        } else if (message.getText().equals("Yo'q") && jobs.getState().equals(State.NONE.toString())) {
+        } else if (message.getText().equals("Yo'q") && job.getState().equals(State.NONE.toString())) {
 
             markup = new ReplyKeyboardMarkup();
             keyboardRow = new ArrayList<>();
 
-            List<Requirement> byJob = requirementCache.findByJob(jobs);
+            List<Requirement> byJob = requirementStore.findByJob(job);
             StringBuilder sb = new StringBuilder();
             for (Requirement requirement : byJob) {
                 sb.append("\n-").append(requirement.getName()).append(":");
             }
 
             messageSender.sendMessage(SendMessage.builder().text(
-                            "\uD83C\uDF93 Id: " + jobs.getJobId() + "\n" +
-                                    "\uD83C\uDFE2 Idora: " + jobs.getCompanyName() + "\n" +
-                                    "\uD83D\uDCDA Texnologiya: " + jobs.getTechnology() + "\n" +
+                            "\uD83C\uDF93 Id: " + job.getJobId() + "\n" +
+                                    "\uD83C\uDFE2 Idora: " + job.getCompanyName() + "\n" +
+                                    "\uD83D\uDCDA Texnologiya: " + job.getTechnology() + "\n" +
                                     "\uD83C\uDDFA\uD83C\uDDFF Telegram: @apply11_bot\n" +
-                                    "\uD83C\uDF10 Hudud: " + jobs.getTerritory() + "\n" +
+                                    "\uD83C\uDF10 Hudud: " + job.getTerritory() + "\n" +
                                     "‼️ Qo`shimcha: " + sb)
                     .parseMode("HTML")
                     .chatId(String.valueOf(message.getChatId()))
@@ -185,38 +189,38 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
             sm.setChatId(String.valueOf(message.getChatId()));
             sm.setReplyMarkup(markup);
             messageSender.sendMessage(sm);
-            jobs.setState(State.CHECKED.toString());
+            job.setState(State.CHECKED.toString());
 
-        } else if (message.getText().equals("Ha") && jobs.getState().equals(State.CHECKED.toString())) {
+        } else if (message.getText().equals("Ha") && job.getState().equals(State.CHECKED.toString())) {
             SendMessage sm = new SendMessage();
             sm.setText("Arizangiz ko'rib chiqish uchun adminga yuborildi");
             sm.setParseMode("HTML");
             sm.setChatId(String.valueOf(message.getChatId()));
-            jobs.setState(State.COMPLETED.toString());
+            job.setState(State.COMPLETED.toString());
             keyboardRow.clear();
-            jobs.setIsCompanyName(false);
+            job.setIsCompanyName(false);
             sm.setReplyMarkup(buttons());
             messageSender.sendMessage(sm);
 
-        } else if (message.getText().equals("Yo'q") && jobs.getState().equals(State.CHECKED.toString())) {
+        } else if (message.getText().equals("Yo'q") && job.getState().equals(State.CHECKED.toString())) {
             SendMessage sm = new SendMessage();
             sm.setText("Qabul qilinmadi " +
                     "\n/start so`zini bosing. E'lon berish qaytadan boshlanadi");
             sm.setChatId(String.valueOf(message.getChatId()));
-            jobs.setState(State.DENIED.toString());
-            jobs.setIsCompanyName(false);
-            jobs.setIsTechnology(false);
-            jobs.setIsTerritory(false);
+            job.setState(State.DENIED.toString());
+            job.setIsCompanyName(false);
+            job.setIsTechnology(false);
+            job.setIsTerritory(false);
             keyboardRow.clear();
             sm.setReplyMarkup(buttons());
             messageSender.sendMessage(sm);
         }
-        cache.update(jobs);
+        jobStore.update(job);
     }
 
     @Override
     public void jobList(Message message, Integer id) {
-        List<Jobs> byUser = cache.findByUserId(message.getFrom().getId());
+        List<Jobs> byUser = jobStore.findByUserId(message.getFrom().getId());
         SendMessage sm = new SendMessage();
         if (byUser.size() == 0) {
             sm.setChatId(String.valueOf(message.getChatId()));
@@ -241,12 +245,12 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
             sm.setText("Ro'yxatdan o'tgan ishlar");
             sm.setReplyMarkup(markup);
         }
-        if (jobs.isCompanyName()) {
-            jobs.setState(State.DENIED.toString());
-            jobs.setIsCompanyName(false);
-            jobs.setIsTechnology(false);
-            jobs.setIsTerritory(false);
-            cache.update(jobs);
+        if (job.isCompanyName()) {
+            job.setState(State.DENIED.toString());
+            job.setIsCompanyName(false);
+            job.setIsTechnology(false);
+            job.setIsTerritory(false);
+            jobStore.update(job);
         }
         messageSender.sendMessage(sm);
     }
@@ -256,7 +260,7 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
         String text = message.getText().trim();
         String[] all = text.split(" ");
         String s = all[1];
-        List<Apply> byJobId = applyCache.findByJobId(s);
+        List<Apply> byJobId = applyStore.findByJobId(s);
         List<Apply> applies = new ArrayList<>();
         for (Apply apply : byJobId) {
             if (apply.getState().equals(State.COMPLETED.toString()))
@@ -284,18 +288,18 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
 
     @Override
     public void mainPage(Message message, Integer id) {
-        jobs = cache.findBy(message.getChatId(), id);
+        job = jobStore.findBy(message.getChatId(), id);
         messageSender.sendMessage(SendMessage.builder()
                 .text("Bosh sahifa")
                 .chatId(String.valueOf(message.getChatId()))
                 .replyMarkup(buttons())
                 .build());
-        if (jobs.isCompanyName()) {
-            jobs.setState(State.DENIED.toString());
-            jobs.setIsCompanyName(false);
-            jobs.setIsTechnology(false);
-            jobs.setIsTerritory(false);
-            cache.update(jobs);
+        if (job.isCompanyName()) {
+            job.setState(State.DENIED.toString());
+            job.setIsCompanyName(false);
+            job.setIsTechnology(false);
+            job.setIsTerritory(false);
+            jobStore.update(job);
         }
     }
 
@@ -332,10 +336,10 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
         Date date = new Date();
         String format = dateFormat.format(date);
 
-        jobs.setUserId(user_id);
-        jobs.setUsername(username);
-        jobs.setState(State.NONE.toString());
-        jobs.setRegistrationTime(format);
+        job.setUserId(user_id);
+        job.setUsername(username);
+        job.setState(State.NONE.toString());
+        job.setRegistrationTime(format);
     }
 
     private ReplyKeyboardMarkup buttons() {
@@ -357,8 +361,8 @@ public class SendMessageServiceImpl implements SendMessageService<Message> {
                 .builder().text("\uD83C\uDF10 Qo'shimcha talablar: \n")
                 .chatId(String.valueOf(chat_id))
                 .build());
-        jobs.setIsRequirements(true);
-        jobs.setState(State.REQUIREMENT.toString());
+        job.setIsRequirements(true);
+        job.setState(State.REQUIREMENT.toString());
 
     }
 }

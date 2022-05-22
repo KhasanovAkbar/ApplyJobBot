@@ -1,14 +1,17 @@
-package univ.tuit.applyjobbot.cache;
+package univ.tuit.applyjobbot.services;
 
 import univ.tuit.applyjobbot.store.jpo.JobsJpo;
 
+import java.io.IOException;
 import java.util.List;
 
-public interface Cache<T> {
+public interface ApplyService<T> {
 
-    T add(T t);
+    void apply(T t);
 
-    void update(T t);
+    void applyJob(T t, Integer id);
+
+    void sendCV(T t, Integer id) throws IOException;   T add(T t);
 
     T findBy(Long id, Integer sequence);
 
@@ -19,5 +22,4 @@ public interface Cache<T> {
     List<T> findByUserId(Long id);
 
     List<T> findByJob(JobsJpo jobsJpo);
-
 }

@@ -1,10 +1,10 @@
-package univ.tuit.applyjobbot.cache;
+package univ.tuit.applyjobbot.store;
 
 import univ.tuit.applyjobbot.store.jpo.JobsJpo;
 
 import java.util.List;
 
-public interface Cache<T> {
+public interface ApplyStore<T> {
 
     T add(T t);
 
@@ -19,5 +19,4 @@ public interface Cache<T> {
     List<T> findByUserId(Long id);
 
     List<T> findByJob(JobsJpo jobsJpo);
-
 }

@@ -1,45 +1,27 @@
 package univ.tuit.applyjobbot.domain;
 
-import lombok.*;
 
-import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@Entity
-@Table(name = "jobs")
 public class Jobs {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sequence")
     private Integer id;
-
     private Long userId;
-
     private String username;
-
-    @Column(name = "jobId")
     private String jobId;
-
     private String companyName = "Register";
-
     private boolean isCompanyName = false;
-
     private String technology = "Register";
-
     private boolean isTechnology = false;
-
     private String territory = "Register";
-
     private boolean isTerritory = false;
-
     private String state = "Register";
-
     private boolean isRequirements = false;
-
     private String registrationTime;
 
     public boolean isCompanyName() {
@@ -73,4 +55,5 @@ public class Jobs {
     public void setIsRequirements(boolean requirements) {
         isRequirements = requirements;
     }
+
 }

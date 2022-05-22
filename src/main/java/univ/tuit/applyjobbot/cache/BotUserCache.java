@@ -3,15 +3,17 @@ package univ.tuit.applyjobbot.cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import univ.tuit.applyjobbot.domain.Jobs;
-import univ.tuit.applyjobbot.repo.JobRepository;
-import univ.tuit.applyjobbot.repo.RequirementRepository;
+import univ.tuit.applyjobbot.store.JobStore;
+import univ.tuit.applyjobbot.store.RequirementStore;
+import univ.tuit.applyjobbot.store.jpo.JobsJpo;
+import univ.tuit.applyjobbot.store.repo.JobRepository;
+import univ.tuit.applyjobbot.store.repo.RequirementRepository;
 
 import java.util.List;
 
 @Component
 @Repository
-public class BotUserCache implements Cache<Jobs> {
+public class BotUserCache implements Cache<JobsJpo> {
 
     @Autowired
     JobRepository jobRepository;
@@ -20,56 +22,56 @@ public class BotUserCache implements Cache<Jobs> {
     RequirementRepository requirementRepository;
 
     @Override
-    public Jobs add(Jobs jobs) {
-        Jobs save;
-        if (jobs.getUserId() != null)
-            save = jobRepository.save(jobs);
+    public JobsJpo add(JobsJpo jobsJpo) {
+        JobsJpo save;
+        if (jobsJpo.getUserId() != null)
+            save = jobRepository.save(jobsJpo);
         else throw new NullPointerException("No id");
         return save;
     }
 
     @Override
-    public void update(Jobs jobs) {
-        if (jobs.getUserId() != null) {
-            Jobs byUserId = jobRepository.findByUserIdAndId(jobs.getUserId(), jobs.getId());
-            if (byUserId != null && jobs.getId().equals(byUserId.getId())) {
-                byUserId.setCompanyName(jobs.getCompanyName());
-                byUserId.setIsCompanyName(jobs.isCompanyName());
-                byUserId.setTechnology(jobs.getTechnology());
-                byUserId.setIsTechnology(jobs.isTechnology());
-                byUserId.setTerritory(jobs.getTerritory());
-                byUserId.setIsTerritory(jobs.isTerritory());
-                byUserId.setJobId(jobs.getJobId());
-                byUserId.setState(jobs.getState());
-                byUserId.setIsRequirements(jobs.isRequirements());
+    public void update(JobsJpo jobsJpo) {
+        if (jobsJpo.getUserId() != null) {
+            JobsJpo byUserId = jobRepository.findByUserIdAndId(jobsJpo.getUserId(), jobsJpo.getId());
+            if (byUserId != null && jobsJpo.getId().equals(byUserId.getId())) {
+                byUserId.setCompanyName(jobsJpo.getCompanyName());
+                byUserId.setIsCompanyName(jobsJpo.isCompanyName());
+                byUserId.setTechnology(jobsJpo.getTechnology());
+                byUserId.setIsTechnology(jobsJpo.isTechnology());
+                byUserId.setTerritory(jobsJpo.getTerritory());
+                byUserId.setIsTerritory(jobsJpo.isTerritory());
+                byUserId.setJobId(jobsJpo.getJobId());
+                byUserId.setState(jobsJpo.getState());
+                byUserId.setIsRequirements(jobsJpo.isRequirements());
                 jobRepository.save(byUserId);
-            } else jobRepository.save(jobs);
+            } else jobRepository.save(jobsJpo);
         } else throw new NullPointerException("No id");
     }
 
     @Override
-    public Jobs findBy(Long id, Integer sequence) {
+    public JobsJpo findBy(Long id, Integer sequence) {
         return jobRepository.findByUserIdAndId(id, sequence);
     }
 
     @Override
-    public List<Jobs> getAll() {
+    public List<JobsJpo> getAll() {
         return jobRepository.getAll();
     }
 
     @Override
-    public List<Jobs> findByJobId(String s) {
+    public List<JobsJpo> findByJobId(String s) {
         //this function works for requirements
         return null;
     }
 
     @Override
-    public List<Jobs> findByUserId(Long id) {
+    public List<JobsJpo> findByUserId(Long id) {
         return jobRepository.findByUserId(id);
     }
 
     @Override
-    public List<Jobs> findByJob(Jobs jobs) {
+    public List<JobsJpo> findByJob(JobsJpo jobsJpo) {
         //this functions works for Requirements
         return null;
     }

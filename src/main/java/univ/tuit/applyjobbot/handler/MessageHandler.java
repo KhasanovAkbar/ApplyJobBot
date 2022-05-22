@@ -2,10 +2,13 @@ package univ.tuit.applyjobbot.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import univ.tuit.applyjobbot.cache.Cache;
 import univ.tuit.applyjobbot.domain.Jobs;
-import univ.tuit.applyjobbot.services.SendMessageServiceImpl;
+import univ.tuit.applyjobbot.services.JobService;
+import univ.tuit.applyjobbot.store.jpo.JobsJpo;
+import univ.tuit.applyjobbot.store.SendMessageStoreLogic;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,15 +20,10 @@ import java.util.List;
 public class MessageHandler implements Handler<Message> {
 
     @Autowired
-    private final Cache<Jobs> cache;
+    private JobService<Jobs> jobService;
 
     @Autowired
-    private SendMessageServiceImpl sendMessageService;
-
-
-    public MessageHandler(Cache<Jobs> cache) {
-        this.cache = cache;
-    }
+    private SendMessageStoreLogic sendMessageService;
 
     @Override
     public void choose(Message message) {
@@ -36,7 +34,7 @@ public class MessageHandler implements Handler<Message> {
 
         if (message.hasText()) {
             log(user_first_name, user_last_name, Long.toString(user_id), message_text, message_text);
-            List<Jobs> all = cache.getAll();
+            List<Jobs> all = jobService.getAll();
             Jobs lastJob = new Jobs();
             for (Jobs job : all) {
                 if (job.getUserId().equals(user_id)) {
@@ -67,7 +65,7 @@ public class MessageHandler implements Handler<Message> {
                     sendMessageService.mainPage(message, lastJob.getId());
                     break;
                 default:
-                    if (message.getFrom().getId().equals(cache.findBy(user_id, lastJob.getId()).getUserId())) {
+                    if (message.getFrom().getId().equals(jobService.findBy(user_id, lastJob.getId()).getUserId())) {
                         String[] text = message.getText().split(" ");
 
                         if (!text[0].equals("Id:"))
