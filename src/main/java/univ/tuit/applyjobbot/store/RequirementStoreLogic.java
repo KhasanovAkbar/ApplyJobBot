@@ -18,13 +18,14 @@ public class RequirementStoreLogic implements RequirementStore {
 
     @Override
     public Requirement add(Requirement t) {
-        RequirementJpo requirementJpo = new RequirementJpo(t);
-        return requirementRepository.save(requirementJpo).toDomain();
+        RequirementJpo requirementJpo = RequirementJpo.toDomain(t);
+        RequirementJpo save = requirementRepository.save(requirementJpo);
+        return RequirementJpo.toDomain(save);
     }
 
     @Override
     public List<Requirement> findByJob(Jobs job) {
-        JobsJpo jobsJpo = new JobsJpo(job);
+        JobsJpo jobsJpo = JobsJpo.toDomain(job);
         List<RequirementJpo> byJob = requirementRepository.findByJob(jobsJpo);
         return RequirementJpo.toDomain(byJob);
     }

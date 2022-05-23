@@ -32,6 +32,7 @@ public class JobLogic implements JobService<Jobs> {
         if (jobs.getUserId() != null) {
             Jobs byUserId = jobStore.findByUserIdAndId(jobs.getUserId(), jobs.getId());
             if (byUserId != null && jobs.getId().equals(byUserId.getId())) {
+                byUserId.setId(jobs.getId());
                 byUserId.setCompanyName(jobs.getCompanyName());
                 byUserId.setIsCompanyName(jobs.isCompanyName());
                 byUserId.setTechnology(jobs.getTechnology());
@@ -41,8 +42,8 @@ public class JobLogic implements JobService<Jobs> {
                 byUserId.setJobId(jobs.getJobId());
                 byUserId.setState(jobs.getState());
                 byUserId.setIsRequirements(jobs.isRequirements());
-                jobStore.create(byUserId);
-            } else jobStore.create(jobs);
+                jobStore.update(byUserId);
+            } else jobStore.update(jobs);
         } else throw new NullPointerException("No id");
 
     }

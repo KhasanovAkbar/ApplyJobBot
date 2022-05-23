@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Requirement {
-
+    private Integer id;
     private String name;
     private Jobs job;
 }

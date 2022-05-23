@@ -5,6 +5,7 @@ import org.springframework.beans.BeanUtils;
 import univ.tuit.applyjobbot.domain.Jobs;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,11 +78,13 @@ public class JobsJpo {
         isRequirements = requirements;
     }
 
-    public JobsJpo(Jobs jobs) {
+    public static JobsJpo toDomain(Jobs jobs) {
         JobsJpo jobsJpo = new JobsJpo();
+
+        jobsJpo.setId(jobs.getId());
         jobsJpo.setUsername(jobs.getUsername());
         jobsJpo.setJobId(jobs.getJobId());
-        jobs.setUserId(jobs.getUserId());
+        jobsJpo.setUserId(jobs.getUserId());
 
         jobsJpo.setCompanyName(jobs.getCompanyName());
         jobsJpo.setIsCompanyName(jobs.isCompanyName());
@@ -97,16 +100,59 @@ public class JobsJpo {
         jobsJpo.setIsRequirements(jobs.isRequirements());
 
         jobsJpo.setRegistrationTime(jobs.getRegistrationTime());
-
+        return jobsJpo;
     }
 
-    public Jobs toDomain() {
-        Jobs jobs = new Jobs();
-        BeanUtils.copyProperties(this, jobs);
-        return jobs;
+    public static Jobs toDomain(JobsJpo jobs) {
+        Jobs job = new Jobs();
+
+        job.setId(jobs.getId());
+        job.setUsername(jobs.getUsername());
+        job.setJobId(jobs.getJobId());
+        job.setUserId(jobs.getUserId());
+
+        job.setCompanyName(jobs.getCompanyName());
+        job.setIsCompanyName(jobs.isCompanyName());
+
+        job.setTechnology(jobs.getTechnology());
+        job.setIsTechnology(jobs.isTechnology());
+
+        job.setTerritory(jobs.getTerritory());
+        job.setIsTerritory(jobs.isTerritory());
+
+        job.setState(jobs.getState());
+
+        job.setIsRequirements(jobs.isRequirements());
+
+        job.setRegistrationTime(jobs.getRegistrationTime());
+        return job;
     }
 
     public static List<Jobs> toDomain(List<JobsJpo> jobsJpos) {
-        return jobsJpos.stream().map(JobsJpo::toDomain).collect(Collectors.toList());
+        List<Jobs> list = new ArrayList<>();
+        for (JobsJpo job:jobsJpos){
+            Jobs jobs = new Jobs();
+            jobs.setId(job.getId());
+            jobs.setUsername(job.getUsername());
+            jobs.setJobId(job.getJobId());
+            jobs.setUserId(job.getUserId());
+
+            jobs.setCompanyName(job.getCompanyName());
+            jobs.setIsCompanyName(job.isCompanyName());
+
+            jobs.setTechnology(job.getTechnology());
+            jobs.setIsTechnology(job.isTechnology());
+
+            jobs.setTerritory(job.getTerritory());
+            jobs.setIsTerritory(job.isTerritory());
+
+            jobs.setState(job.getState());
+
+            jobs.setIsRequirements(job.isRequirements());
+
+            jobs.setRegistrationTime(job.getRegistrationTime());
+            list.add(jobs);
+        }
+        return list;
     }
 }

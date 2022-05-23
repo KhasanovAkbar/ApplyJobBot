@@ -10,6 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import univ.tuit.applyjobbot.domain.Apply;
 import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.domain.Requirement;
+import univ.tuit.applyjobbot.services.ApplyService;
+import univ.tuit.applyjobbot.services.JobService;
+import univ.tuit.applyjobbot.services.RequirementService;
 import univ.tuit.applyjobbot.services.SendMessageService;
 import univ.tuit.applyjobbot.domain.State;
 import univ.tuit.applyjobbot.messageSender.MessageSender;
@@ -27,13 +30,13 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
     private final MessageSender messageSender;
 
     @Autowired
-    JobStore<Jobs> jobStore;
+    JobService<Jobs> jobService;
 
     @Autowired
-    RequirementStore requirementStore;
+    RequirementService requirementService;
 
     @Autowired
-    ApplyStore<Apply> applyStore;
+    ApplyService<Apply> applyService;
 
     static Jobs job = new Jobs();
 
@@ -85,7 +88,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
                 .build());
         job.setCompanyName(message.getText());
         job.setIsCompanyName(true);
-        jobStore.update(job);
+        jobService.add(job);
 
     }
 
@@ -93,7 +96,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
     public void registerJob(Message message, Integer id) {
 
         long chat_id = message.getChatId();
-        job = jobStore.findBy(chat_id, id);
+        job = jobService.findBy(chat_id, id);
         if (job.getTechnology().equals("Register") && job.isCompanyName()) {
             messageSender.sendMessage(SendMessage
                     .builder().text("\uD83D\uDCDA Texnologiya:\n" +
@@ -135,7 +138,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             Requirement r = new Requirement();
             r.setName(requirement);
             r.setJob(job);
-            requirementStore.add(r);
+            requirementService.add(r);
 
             SendMessage sm = new SendMessage();
             KeyboardRow row1 = new KeyboardRow();
@@ -160,7 +163,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             markup = new ReplyKeyboardMarkup();
             keyboardRow = new ArrayList<>();
 
-            List<Requirement> byJob = requirementStore.findByJob(job);
+            List<Requirement> byJob = requirementService.findByJob(job);
             StringBuilder sb = new StringBuilder();
             for (Requirement requirement : byJob) {
                 sb.append("\n-").append(requirement.getName()).append(":");
@@ -215,12 +218,12 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             sm.setReplyMarkup(buttons());
             messageSender.sendMessage(sm);
         }
-        jobStore.update(job);
+        jobService.update(job);
     }
 
     @Override
     public void jobList(Message message, Integer id) {
-        List<Jobs> byUser = jobStore.findByUserId(message.getFrom().getId());
+        List<Jobs> byUser = jobService.findByUserId(message.getFrom().getId());
         SendMessage sm = new SendMessage();
         if (byUser.size() == 0) {
             sm.setChatId(String.valueOf(message.getChatId()));
@@ -250,7 +253,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             job.setIsCompanyName(false);
             job.setIsTechnology(false);
             job.setIsTerritory(false);
-            jobStore.update(job);
+            jobService.update(job);
         }
         messageSender.sendMessage(sm);
     }
@@ -260,7 +263,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
         String text = message.getText().trim();
         String[] all = text.split(" ");
         String s = all[1];
-        List<Apply> byJobId = applyStore.findByJobId(s);
+        List<Apply> byJobId = applyService.findByJobId(s);
         List<Apply> applies = new ArrayList<>();
         for (Apply apply : byJobId) {
             if (apply.getState().equals(State.COMPLETED.toString()))
@@ -288,7 +291,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
 
     @Override
     public void mainPage(Message message, Integer id) {
-        job = jobStore.findBy(message.getChatId(), id);
+        job = jobService.findBy(message.getChatId(), id);
         messageSender.sendMessage(SendMessage.builder()
                 .text("Bosh sahifa")
                 .chatId(String.valueOf(message.getChatId()))
@@ -299,7 +302,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             job.setIsCompanyName(false);
             job.setIsTechnology(false);
             job.setIsTerritory(false);
-            jobStore.update(job);
+            jobService.update(job);
         }
     }
 

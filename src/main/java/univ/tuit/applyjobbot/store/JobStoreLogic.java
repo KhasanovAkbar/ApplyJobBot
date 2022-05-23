@@ -20,19 +20,21 @@ public class JobStoreLogic implements JobStore<Jobs> {
 
     @Override
     public Jobs create(Jobs jobs) {
-        JobsJpo jobsJpo = new JobsJpo(jobs);
-        return jobRepository.save(jobsJpo).toDomain();
+        JobsJpo jobsJpo = JobsJpo.toDomain(jobs);
+        JobsJpo save = jobRepository.save(jobsJpo);
+        return JobsJpo.toDomain(save);
     }
 
     @Override
     public void update(Jobs jobs) {
-        JobsJpo jobsJpo = new JobsJpo(jobs);
+        JobsJpo jobsJpo = JobsJpo.toDomain(jobs);
         jobRepository.save(jobsJpo);
     }
 
     @Override
     public Jobs findBy(Long id, Integer sequence) {
-        return jobRepository.findByUserIdAndId(id, sequence).toDomain();
+        JobsJpo byUserIdAndId = jobRepository.findByUserIdAndId(id, sequence);
+        return JobsJpo.toDomain(byUserIdAndId);
     }
 
     @Override
@@ -50,6 +52,7 @@ public class JobStoreLogic implements JobStore<Jobs> {
 
     @Override
     public Jobs findByUserIdAndId(Long userId, Integer id) {
-        return jobRepository.findByUserIdAndId(userId, id).toDomain();
+        JobsJpo byUserIdAndId = jobRepository.findByUserIdAndId(userId, id);
+        return JobsJpo.toDomain(byUserIdAndId);
     }
 }

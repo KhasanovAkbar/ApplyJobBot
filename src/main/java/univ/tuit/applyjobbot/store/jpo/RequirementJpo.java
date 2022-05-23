@@ -9,6 +9,7 @@ import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.domain.Requirement;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,16 +30,33 @@ public class RequirementJpo {
     @JoinColumn(name = "jobId")
     private JobsJpo job;
 
-    public RequirementJpo(Requirement requirement) {
-        BeanUtils.copyProperties(requirement, this);
+    public static RequirementJpo toDomain(Requirement requirement) {
+        RequirementJpo requirementJpo = new RequirementJpo();
+        requirementJpo.setName(requirement.getName());
+        Jobs job = requirement.getJob();
+        requirementJpo.setJob(JobsJpo.toDomain(job));
+        return requirementJpo;
     }
 
     public static List<Requirement> toDomain(List<RequirementJpo> requirementJpos) {
-        return requirementJpos.stream().map(RequirementJpo::toDomain).collect(Collectors.toList());
+        List<Requirement> list = new ArrayList<>();
+        for (RequirementJpo requirementJpo : requirementJpos) {
+
+            Requirement requirement = new Requirement();
+            requirement.setId(requirementJpo.getId());
+            requirement.setName(requirementJpo.getName());
+            requirement.setJob(JobsJpo.toDomain(requirementJpo.getJob()));
+            list.add(requirement);
+        }
+        return list;
     }
-    public Requirement toDomain() {
+
+    public static Requirement toDomain(RequirementJpo requirementJpo) {
+
         Requirement requirement = new Requirement();
-        BeanUtils.copyProperties(this, requirement);
+        requirement.setId(requirementJpo.getId());
+        requirement.setName(requirementJpo.getName());
+        requirement.setJob(JobsJpo.toDomain(requirementJpo.getJob()));
         return requirement;
     }
 }
