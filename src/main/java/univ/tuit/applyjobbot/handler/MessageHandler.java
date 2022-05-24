@@ -2,12 +2,9 @@ package univ.tuit.applyjobbot.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import univ.tuit.applyjobbot.cache.Cache;
 import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.services.JobService;
-import univ.tuit.applyjobbot.store.jpo.JobsJpo;
 import univ.tuit.applyjobbot.store.SendMessageStoreLogic;
 
 import java.text.DateFormat;
@@ -33,7 +30,7 @@ public class MessageHandler implements Handler<Message> {
         String message_text = message.getText();
 
         if (message.hasText()) {
-            log(user_first_name, user_last_name, Long.toString(user_id), message_text, message_text);
+            log(user_first_name, user_last_name, Long.toString(user_id), message_text);
             List<Jobs> all = jobService.getAll();
             Jobs lastJob = new Jobs();
             for (Jobs job : all) {
@@ -45,12 +42,10 @@ public class MessageHandler implements Handler<Message> {
             switch (message.getText()) {
                 case "/start":
                     sendMessageService.start(message);
-                    //    cache.add(user);
                     break;
 
                 case "/restart":
                     sendMessageService.restart(message);
-                    //     cache.add(user);
                     break;
                 case "/help":
                     sendMessageService.help(message);
@@ -65,7 +60,7 @@ public class MessageHandler implements Handler<Message> {
                     sendMessageService.mainPage(message, lastJob.getId());
                     break;
                 default:
-                    if (message.getFrom().getId().equals(jobService.findBy(user_id, lastJob.getId()).getUserId())) {
+                    if (message.getFrom().getId().equals(jobService.findByUserIdAndId(user_id, lastJob.getId()).getUserId())) {
                         String[] text = message.getText().split(" ");
 
                         if (!text[0].equals("Id:"))
@@ -77,13 +72,12 @@ public class MessageHandler implements Handler<Message> {
 
     }
 
-    public static void log(String first_name, String last_name, String user_id, String txt, String bot_answer) {
+    public static void log(String first_name, String last_name, String user_id, String txt) {
         System.out.println("\n ----------------------------");
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         System.out.println(dateFormat.format(date));
         System.out.println("Message from " + first_name + " " + last_name + ". (id = " + user_id + ") \n Text - " + txt);
-        System.out.println("Bot answer: \n Text - " + bot_answer);
     }
 
 }

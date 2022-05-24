@@ -87,7 +87,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
                 .chatId(String.valueOf(message.getChatId()))
                 .build());
         job.setCompanyName(message.getText());
-        job.setIsCompanyName(true);
+        job.setIsCompanyName(1);
         jobService.add(job);
 
     }
@@ -96,8 +96,8 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
     public void registerJob(Message message, Integer id) {
 
         long chat_id = message.getChatId();
-        job = jobService.findBy(chat_id, id);
-        if (job.getTechnology().equals("Register") && job.isCompanyName()) {
+        job = jobService.findByUserIdAndId(chat_id, id);
+        if (job.getTechnology().equals("Register") && job.getIsCompanyName() == 1) {
             messageSender.sendMessage(SendMessage
                     .builder().text("\uD83D\uDCDA Texnologiya:\n" +
                             "\n" +
@@ -109,9 +109,9 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
                     .build());
             job.setCompanyName(message.getText());
             job.setTechnology(message.getText());
-            job.setIsTechnology(true);
+            job.setIsTechnology(1);
 
-        } else if (job.getTerritory().equals("Register") && job.isTechnology()) {
+        } else if (job.getTerritory().equals("Register") && job.getIsTechnology() ==1) {
             messageSender.sendMessage(SendMessage
                     .builder().text("\uD83C\uDF10 Hudud: \n" +
                             "\n" +
@@ -124,14 +124,14 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
 
             //generate Job id
             job.setJobId(generateJobId(job.getCompanyName()));
-            job.setIsTerritory(true);
+            job.setIsTerritory(1);
 
-        } else if (job.isTerritory() && job.getState().equals(State.NONE.toString())) {
+        } else if (job.getIsTerritory() == 1 && job.getState().equals(State.NONE.toString())) {
             job.setTerritory(message.getText());
             addRequirement(chat_id);
-            job.setIsTerritory(false);
+            job.setIsTerritory(0);
 
-        } else if (job.isRequirements() && job.getState().equals(State.REQUIREMENT.toString())) {
+        } else if (job.getIsRequirements() == 1 && job.getState().equals(State.REQUIREMENT.toString())) {
 
             //add requirement
             String requirement = message.getText();
@@ -201,7 +201,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             sm.setChatId(String.valueOf(message.getChatId()));
             job.setState(State.COMPLETED.toString());
             keyboardRow.clear();
-            job.setIsCompanyName(false);
+            job.setIsCompanyName(0);
             sm.setReplyMarkup(buttons());
             messageSender.sendMessage(sm);
 
@@ -211,9 +211,10 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
                     "\n/start so`zini bosing. E'lon berish qaytadan boshlanadi");
             sm.setChatId(String.valueOf(message.getChatId()));
             job.setState(State.DENIED.toString());
-            job.setIsCompanyName(false);
-            job.setIsTechnology(false);
-            job.setIsTerritory(false);
+            job.setIsCompanyName(0);
+            job.setIsTechnology(0);
+            job.setIsTerritory(0);
+            job.setIsRequirements(0);
             keyboardRow.clear();
             sm.setReplyMarkup(buttons());
             messageSender.sendMessage(sm);
@@ -248,11 +249,12 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             sm.setText("Ro'yxatdan o'tgan ishlar");
             sm.setReplyMarkup(markup);
         }
-        if (job.isCompanyName()) {
+        if (job.getIsCompanyName() == 1) {
             job.setState(State.DENIED.toString());
-            job.setIsCompanyName(false);
-            job.setIsTechnology(false);
-            job.setIsTerritory(false);
+            job.setIsCompanyName(0);
+            job.setIsTechnology(0);
+            job.setIsTerritory(0);
+            job.setIsRequirements(0);
             jobService.update(job);
         }
         messageSender.sendMessage(sm);
@@ -275,7 +277,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
                     .chatId(String.valueOf(message.getChatId()))
                     .build());
         else
-            for (Apply apply : byJobId) {
+            for (Apply apply : applies) {
                 messageSender.sendMessage(SendMessage.builder().text(
                                 "\uD83C\uDF93 Id: " + apply.getJobId() + "\n" +
                                         "\uD83D\uDC68\u200D\uD83D\uDCBC Xodim: " + apply.getName() + "\n" +
@@ -291,17 +293,18 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
 
     @Override
     public void mainPage(Message message, Integer id) {
-        job = jobService.findBy(message.getChatId(), id);
+        job = jobService.findByUserIdAndId(message.getChatId(), id);
         messageSender.sendMessage(SendMessage.builder()
                 .text("Bosh sahifa")
                 .chatId(String.valueOf(message.getChatId()))
                 .replyMarkup(buttons())
                 .build());
-        if (job.isCompanyName()) {
+        if (job.getIsCompanyName() == 1) {
             job.setState(State.DENIED.toString());
-            job.setIsCompanyName(false);
-            job.setIsTechnology(false);
-            job.setIsTerritory(false);
+            job.setIsCompanyName(0);
+            job.setIsTechnology(0);
+            job.setIsTerritory(0);
+            job.setIsRequirements(0);
             jobService.update(job);
         }
     }
@@ -364,7 +367,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
                 .builder().text("\uD83C\uDF10 Qo'shimcha talablar: \n")
                 .chatId(String.valueOf(chat_id))
                 .build());
-        job.setIsRequirements(true);
+        job.setIsRequirements(1);
         job.setState(State.REQUIREMENT.toString());
 
     }

@@ -1,6 +1,8 @@
 package univ.tuit.applyjobbot.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonSerialize(include= JsonSerialize.Inclusion.NON_EMPTY)
 public class Jobs {
 
     private Integer id;
@@ -15,45 +19,12 @@ public class Jobs {
     private String username;
     private String jobId;
     private String companyName = "Register";
-    private boolean isCompanyName = false;
+    private int isCompanyName = 0 ;
     private String technology = "Register";
-    private boolean isTechnology = false;
+    private int isTechnology = 0;
     private String territory = "Register";
-    private boolean isTerritory = false;
+    private int isTerritory = 0;
     private String state = "Register";
-    private boolean isRequirements = false;
+    private int isRequirements = 0;
     private String registrationTime;
-
-    public boolean isCompanyName() {
-        return isCompanyName;
-    }
-
-    public void setIsCompanyName(boolean companyName) {
-        isCompanyName = companyName;
-    }
-
-    public boolean isTechnology() {
-        return isTechnology;
-    }
-
-    public void setIsTechnology(boolean technology) {
-        isTechnology = technology;
-    }
-
-    public boolean isTerritory() {
-        return isTerritory;
-    }
-
-    public void setIsTerritory(boolean territory) {
-        isTerritory = territory;
-    }
-
-    public boolean isRequirements() {
-        return isRequirements;
-    }
-
-    public void setIsRequirements(boolean requirements) {
-        isRequirements = requirements;
-    }
-
 }

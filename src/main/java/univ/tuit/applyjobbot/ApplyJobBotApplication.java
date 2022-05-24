@@ -2,6 +2,8 @@ package univ.tuit.applyjobbot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class ApplyJobBotApplication {
@@ -10,4 +12,8 @@ public class ApplyJobBotApplication {
         SpringApplication.run(ApplyJobBotApplication.class, args);
     }
 
+    @Bean
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
 }

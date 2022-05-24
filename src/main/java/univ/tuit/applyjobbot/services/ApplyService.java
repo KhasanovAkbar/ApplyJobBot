@@ -1,6 +1,6 @@
 package univ.tuit.applyjobbot.services;
 
-import univ.tuit.applyjobbot.store.jpo.JobsJpo;
+import univ.tuit.applyjobbot.domain.Jobs;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,7 +11,9 @@ public interface ApplyService<T> {
 
     void applyJob(T t, Integer id);
 
-    void sendCV(T t, Integer id) throws IOException;   T add(T t);
+    void sendCV(T t, Integer id) throws IOException;
+
+    T add(T t);
 
     T findBy(Long id, Integer sequence);
 
@@ -21,5 +23,5 @@ public interface ApplyService<T> {
 
     List<T> findByUserId(Long id);
 
-    List<T> findByJob(JobsJpo jobsJpo);
+    List<T> findByJob(Jobs jobsJpo);
 }

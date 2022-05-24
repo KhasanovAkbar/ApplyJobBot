@@ -1,11 +1,9 @@
 package univ.tuit.applyjobbot.logic;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import univ.tuit.applyjobbot.domain.Apply;
+import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.services.ApplyService;
-import univ.tuit.applyjobbot.store.ApplyStore;
-import univ.tuit.applyjobbot.store.jpo.JobsJpo;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,8 +11,6 @@ import java.util.List;
 @Service
 public class ApplyLogic implements ApplyService<Apply> {
 
-    @Autowired
-    ApplyStore<Apply> applyStore;
 
     @Override
     public void apply(Apply apply) {
@@ -57,7 +53,7 @@ public class ApplyLogic implements ApplyService<Apply> {
     }
 
     @Override
-    public List<Apply> findByJob(JobsJpo jobsJpo) {
+    public List<Apply> findByJob(Jobs jobsJpo) {
         return null;
     }
 }
