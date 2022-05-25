@@ -111,7 +111,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             job.setTechnology(message.getText());
             job.setIsTechnology(1);
 
-        } else if (job.getTerritory().equals("Register") && job.getIsTechnology() ==1) {
+        } else if (job.getTerritory().equals("Register") && job.getIsTechnology() == 1) {
             messageSender.sendMessage(SendMessage
                     .builder().text("\uD83C\uDF10 Hudud: \n" +
                             "\n" +
