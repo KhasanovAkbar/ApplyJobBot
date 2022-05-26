@@ -1,4 +1,4 @@
-package univ.tuit.applyjobbot.domain;
+package univ.tuit.applyjobbot.domain.enums;
 
 public enum State {
     COMPLETED,

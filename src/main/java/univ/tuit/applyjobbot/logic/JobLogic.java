@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import univ.tuit.applyjobbot.domain.Jobs;
-import univ.tuit.applyjobbot.domain.response.AllResponseApply;
 import univ.tuit.applyjobbot.domain.response.AllResponseJobs;
 import univ.tuit.applyjobbot.domain.response.FindJobResponse;
 import univ.tuit.applyjobbot.helper.APIResponse;
@@ -72,7 +71,6 @@ public class JobLogic implements JobService<Jobs> {
         List<Jobs> jobs = null;
         HttpEntity<Long> longHttpEntity = new HttpEntity<>(id);
 
-       // FindJobResponse forObject = restTemplate.getForObject("http://localhost:8081/api/v1/job/" + id, FindJobResponse.class, id);
         ResponseEntity<AllResponseJobs> exchange = restTemplate.exchange("http://localhost:8081/api/v1/job/" + id, HttpMethod.GET, longHttpEntity, AllResponseJobs.class);
         if (exchange.getBody() != null) {
             jobs = exchange.getBody().getEntities().get(0);

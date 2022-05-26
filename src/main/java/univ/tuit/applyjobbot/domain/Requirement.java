@@ -11,4 +11,6 @@ public class Requirement {
     private Integer id;
     private String name;
     private Jobs job;
+    private int status;
+
 }

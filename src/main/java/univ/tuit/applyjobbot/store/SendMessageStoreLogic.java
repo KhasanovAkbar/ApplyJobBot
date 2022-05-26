@@ -7,14 +7,14 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import univ.tuit.applyjobbot.domain.Apply;
+import univ.tuit.applyjobbot.domain.Candidate;
 import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.domain.Requirement;
-import univ.tuit.applyjobbot.services.ApplyService;
+import univ.tuit.applyjobbot.services.CandidateService;
 import univ.tuit.applyjobbot.services.JobService;
 import univ.tuit.applyjobbot.services.RequirementService;
 import univ.tuit.applyjobbot.services.SendMessageService;
-import univ.tuit.applyjobbot.domain.State;
+import univ.tuit.applyjobbot.domain.enums.State;
 import univ.tuit.applyjobbot.messageSender.MessageSender;
 
 import java.text.DateFormat;
@@ -36,18 +36,16 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
     RequirementService requirementService;
 
     @Autowired
-    ApplyService<Apply> applyService;
+    CandidateService<Candidate> candidateService;
 
     static Jobs job = new Jobs();
 
     ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
     ArrayList<KeyboardRow> keyboardRow = new ArrayList<>();
 
-
     public SendMessageStoreLogic(MessageSender messageSender) {
         this.messageSender = messageSender;
     }
-
 
     @Override
     public void start(Message message) {
@@ -225,6 +223,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
     @Override
     public void jobList(Message message, Integer id) {
         List<Jobs> byUser = jobService.findByUserId(message.getFrom().getId());
+        job = jobService.findByUserIdAndId(message.getFrom().getId(), id);
         SendMessage sm = new SendMessage();
         if (byUser.size() == 0) {
             sm.setChatId(String.valueOf(message.getChatId()));
@@ -265,11 +264,11 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
         String text = message.getText().trim();
         String[] all = text.split(" ");
         String s = all[1];
-        List<Apply> byJobId = applyService.findByJobId(s);
-        List<Apply> applies = new ArrayList<>();
-        for (Apply apply : byJobId) {
-            if (apply.getState().equals(State.COMPLETED.toString()))
-                applies.add(apply);
+        List<Candidate> byJobId = candidateService.findByJobId(s);
+        List<Candidate> applies = new ArrayList<>();
+        for (Candidate candidate : byJobId) {
+            if (candidate.getState().equals(State.COMPLETED.toString()))
+                applies.add(candidate);
         }
         if (applies.size() == 0)
             messageSender.sendMessage(SendMessage.builder()
@@ -277,14 +276,14 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
                     .chatId(String.valueOf(message.getChatId()))
                     .build());
         else
-            for (Apply apply : applies) {
+            for (Candidate candidate : applies) {
                 messageSender.sendMessage(SendMessage.builder().text(
-                                "\uD83C\uDF93 Id: " + apply.getJobId() + "\n" +
-                                        "\uD83D\uDC68\u200D\uD83D\uDCBC Xodim: " + apply.getName() + "\n" +
-                                        "\uD83D\uDD51 Yosh: " + apply.getAge() + "\n" +
-                                        "\uD83C\uDDFA\uD83C\uDDFF Telegram: @" + apply.getUsername() + "\n" +
-                                        "\uD83D\uDCDE Aloqa: " + apply.getPhoneNumber() + "\n" +
-                                        "\uD83D\uDD17 CV link: " + "<a href =" + "\"https://api.telegram.org/file/bot" + apply.getToken() + "/" + apply.getFilePath() + "\">" + apply.getJobId() + " " + apply.getName() + " cv" + "</a>")
+                                "\uD83C\uDF93 Id: " + candidate.getJobId() + "\n" +
+                                        "\uD83D\uDC68\u200D\uD83D\uDCBC Xodim: " + candidate.getName() + "\n" +
+                                        "\uD83D\uDD51 Yosh: " + candidate.getAge() + "\n" +
+                                        "\uD83C\uDDFA\uD83C\uDDFF Telegram: @" + candidate.getUsername() + "\n" +
+                                        "\uD83D\uDCDE Aloqa: " + candidate.getPhoneNumber() + "\n" +
+                                        "\uD83D\uDD17 CV link: " + "<a href =" + "\"https://api.telegram.org/file/bot" + candidate.getToken() + "/" + candidate.getFilePath() + "\">" + candidate.getJobId() + " " + candidate.getName() + " cv" + "</a>")
                         .parseMode("HTML")
                         .chatId(String.valueOf(message.getChatId()))
                         .build());
