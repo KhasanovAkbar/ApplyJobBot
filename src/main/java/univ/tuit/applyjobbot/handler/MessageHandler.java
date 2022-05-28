@@ -2,6 +2,7 @@ package univ.tuit.applyjobbot.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import univ.tuit.applyjobbot.domain.Jobs;
 import univ.tuit.applyjobbot.services.JobService;
@@ -23,7 +24,8 @@ public class MessageHandler implements Handler<Message> {
     private SendMessageStoreLogic sendMessageService;
 
     @Override
-    public void choose(Message message) {
+    public SendMessage choose(Message message) {
+        SendMessage sm = null;
         String user_first_name = message.getChat().getFirstName();
         String user_last_name = message.getChat().getLastName();
         long user_id = message.getChat().getId();
@@ -41,35 +43,35 @@ public class MessageHandler implements Handler<Message> {
             }
             switch (message.getText()) {
                 case "/start":
-                    sendMessageService.start(message);
+                    sm = sendMessageService.start(message);
                     break;
 
                 case "/restart":
-                    sendMessageService.restart(message);
+                    sm = sendMessageService.restart(message);
                     break;
                 case "/help":
-                    sendMessageService.help(message);
+                    sm = sendMessageService.help(message);
                     break;
                 case "Register":
-                    sendMessageService.register(message);
+                    sm = sendMessageService.register(message);
                     break;
                 case "List":
-                    sendMessageService.jobList(message, lastJob.getId());
+                    sm = sendMessageService.jobList(message, lastJob.getId());
                     break;
                 case "\uD83C\uDFE0️ Bosh sahifa":
-                    sendMessageService.mainPage(message, lastJob.getId());
+                    sm = sendMessageService.mainPage(message, lastJob.getId());
                     break;
                 default:
                     if (message.getFrom().getId().equals(jobService.findByUserIdAndId(user_id, lastJob.getId()).getUserId())) {
                         String[] text = message.getText().split(" ");
 
                         if (!text[0].equals("Id:"))
-                            sendMessageService.registerJob(message, lastJob.getId());
-                        else sendMessageService.applyList(message);
+                            sm = sendMessageService.registerJob(message, lastJob.getId());
+                        else sm = sendMessageService.applyList(message);
                     }
             }
         }
-
+        return sm;
     }
 
     public static void log(String first_name, String last_name, String user_id, String txt) {

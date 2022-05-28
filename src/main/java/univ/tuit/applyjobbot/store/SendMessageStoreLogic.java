@@ -48,7 +48,7 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
     }
 
     @Override
-    public void start(Message message) {
+    public SendMessage start(Message message) {
 
         SendMessage sendMessage = new SendMessage();
         sendMessage.setText("Assalom alaykum " + message.getFrom().getFirstName() +
@@ -58,16 +58,18 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
         sendMessage.setChatId(String.valueOf(message.getChatId()));
         sendMessage.setReplyMarkup(buttons());
         messageSender.sendMessage(sendMessage);
+        return null;
     }
 
     @Override
-    public void restart(Message message) {
+    public SendMessage restart(Message message) {
         //restart bot
         start(message);
+        return null;
     }
 
     @Override
-    public void register(Message message) {
+    public SendMessage register(Message message) {
         long chat_id = message.getChatId();
         job = new Jobs();
         info(message, chat_id);
@@ -87,11 +89,11 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
         job.setCompanyName(message.getText());
         job.setIsCompanyName(1);
         jobService.add(job);
-
+        return null;
     }
 
     @Override
-    public void registerJob(Message message, Integer id) {
+    public SendMessage registerJob(Message message, Integer id) {
 
         long chat_id = message.getChatId();
         job = jobService.findByUserIdAndId(chat_id, id);
@@ -218,10 +220,11 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             messageSender.sendMessage(sm);
         }
         jobService.update(job);
+        return null;
     }
 
     @Override
-    public void jobList(Message message, Integer id) {
+    public SendMessage jobList(Message message, Integer id) {
         List<Jobs> byUser = jobService.findByUserId(message.getFrom().getId());
         job = jobService.findByUserIdAndId(message.getFrom().getId(), id);
         SendMessage sm = new SendMessage();
@@ -257,10 +260,11 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             jobService.update(job);
         }
         messageSender.sendMessage(sm);
+        return null;
     }
 
     @Override
-    public void applyList(Message message) {
+    public SendMessage applyList(Message message) {
         String text = message.getText().trim();
         String[] all = text.split(" ");
         String s = all[1];
@@ -288,16 +292,12 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
                         .chatId(String.valueOf(message.getChatId()))
                         .build());
             }
+        return null;
     }
 
     @Override
-    public void mainPage(Message message, Integer id) {
+    public SendMessage mainPage(Message message, Integer id) {
         job = jobService.findByUserIdAndId(message.getChatId(), id);
-        messageSender.sendMessage(SendMessage.builder()
-                .text("Bosh sahifa")
-                .chatId(String.valueOf(message.getChatId()))
-                .replyMarkup(buttons())
-                .build());
         if (job.getIsCompanyName() == 1) {
             job.setState(State.DENIED.toString());
             job.setIsCompanyName(0);
@@ -306,15 +306,20 @@ public class SendMessageStoreLogic implements SendMessageService<Message> {
             job.setIsRequirements(0);
             jobService.update(job);
         }
+        return SendMessage.builder()
+                .text("Bosh sahifa")
+                .chatId(String.valueOf(message.getChatId()))
+                .replyMarkup(buttons())
+                .build();
     }
 
     @Override
-    public void help(Message message) {
-        messageSender.sendMessage(SendMessage.builder()
+    public SendMessage help(Message message) {
+        return SendMessage.builder()
                 .text("Bu bot bir narsa bir narsa")
                 .chatId(String.valueOf(message.getChatId()))
                 .replyMarkup(buttons())
-                .build());
+                .build();
     }
 
     private String generateJobId(String company) {

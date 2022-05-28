@@ -1,21 +1,23 @@
 package univ.tuit.applyjobbot.processor;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public interface Processor {
 
-    void executeQuery(Message message);
+    SendMessage executeQuery(Message message);
 
-    void executeCallBackQuery(CallbackQuery callbackQuery);
+    SendMessage executeCallBackQuery(CallbackQuery callbackQuery);
 
-    default void processor(Update update) {
+    default SendMessage processor(Update update) {
+        SendMessage sm = null;
         if (update.hasMessage()) {
-            executeQuery(update.getMessage());
+            sm = executeQuery(update.getMessage());
         } else if (update.hasCallbackQuery()) {
-            executeCallBackQuery(update.getCallbackQuery());
+            sm = executeCallBackQuery(update.getCallbackQuery());
         }
-
+        return sm;
     }
 }

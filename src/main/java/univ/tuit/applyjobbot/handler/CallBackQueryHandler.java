@@ -1,6 +1,7 @@
 package univ.tuit.applyjobbot.handler;
 
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import univ.tuit.applyjobbot.messageSender.MessageSender;
 
@@ -14,7 +15,10 @@ public class CallBackQueryHandler implements Handler<CallbackQuery> {
     }
 
     @Override
-    public void choose(CallbackQuery callbackQuery) {
-
+    public SendMessage choose(CallbackQuery callbackQuery) {
+        SendMessage sm = new SendMessage();
+        sm.setChatId(String.valueOf(callbackQuery.getFrom().getId()));
+        sm.setText(callbackQuery.getFrom().getFirstName());
+        return sm;
     }
 }

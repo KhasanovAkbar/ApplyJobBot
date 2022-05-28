@@ -1,21 +1,23 @@
 package univ.tuit.applyjobbot.services;
 
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+
 public interface SendMessageService<T> {
 
-    void start(T t);
+    SendMessage start(T t);
 
-    void restart(T t);
+    SendMessage restart(T t);
 
-    void register(T t);
+    SendMessage register(T t);
 
-    void registerJob(T t, Integer id);
+    SendMessage registerJob(T t, Integer id);
 
-    void jobList(T t, Integer id);
+    SendMessage jobList(T t, Integer id);
 
-    void applyList(T t);
+    SendMessage applyList(T t);
 
-    void mainPage(T t, Integer id);
+    SendMessage mainPage(T t, Integer id);
 
-    void help(T t);
+    SendMessage help(T t);
 }

@@ -1,6 +1,8 @@
 package univ.tuit.applyjobbot.handler;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+
 public interface Handler<T> {
 
-    void choose(T t);
+    SendMessage choose(T t);
 }
